@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Affiche WatchList</title>
+  <desc id="desc">Affiche abstraite aux tons bleu nuit et orange</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1d2b52"/><stop offset=".55" stop-color="#101522"/><stop offset="1" stop-color="#3d1f2a"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#ff8a57"/><stop offset="1" stop-color="#ff5d3b"/></radialGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="800" height="1200" fill="url(#bg)"/>
+  <circle cx="610" cy="275" r="185" fill="url(#sun)" opacity=".95"/>
+  <circle cx="610" cy="275" r="245" fill="#ff5d3b" opacity=".12" filter="url(#blur)"/>
+  <path d="M0 780 215 610l148 118 129-160L800 815v385H0Z" fill="#080b14" opacity=".92"/>
+  <path d="M0 850 290 685l151 130 126-90L800 900v300H0Z" fill="#111827" opacity=".9"/>
+  <g fill="none" stroke="#fff" opacity=".16"><path d="M85 95h630v1010H85z"/><path d="M115 125h570v950H115z"/></g>
+  <g transform="translate(315 480)" fill="none" stroke="#fff" stroke-width="12"><circle cx="85" cy="85" r="78"/><path d="m63 42 70 43-70 43Z" fill="#fff" stroke="none"/></g>
+  <text x="400" y="1040" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-size="54" font-weight="700" letter-spacing="8">WATCHLIST</text>
+  <text x="400" y="1090" fill="#ff8a57" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="6">VOTRE PROCHAINE HISTOIRE</text>
+</svg>
