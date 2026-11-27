@@ -1,0 +1,52 @@
+# WatchList
+
+[Documentation française](README.md)
+
+WatchList is a Laravel app for discovering movies and TV shows, saving a private watchlist and sharing reviews. It queries TMDB on demand rather than importing the entire catalogue.
+
+## Local setup
+
+You need PHP 8.2+, Composer 2, Node.js 20+, and a MySQL or MariaDB server. Run these commands from the project root:
+
+```sh
+composer install
+npm ci
+cp .env.example .env
+php artisan key:generate
+```
+
+On PowerShell use `Copy-Item .env.example .env` if needed. Create an empty database and fill in the `DB_*` settings in `.env`. Import the bundled structure into that empty database only:
+
+```sh
+mysql -u root -p your_database < database/structure_WL.sql
+php artisan migrate
+php artisan db:seed
+npm run build
+php artisan serve
+```
+
+On PowerShell, use the MySQL client and run `SOURCE path/to/database/structure_WL.sql;` after selecting the database. Open `http://127.0.0.1:8000`. For live frontend updates, run `npm run dev` in a separate terminal.
+
+## Catalogue and accounts
+
+Set `TMDB_TOKEN` to your TMDB API read access token in `.env`, then run `php artisan optimize:clear`. The token stays on the server. The catalogue supports title search, movie or TV filters, genres and watchlist additions.
+
+Email verification codes use Laravel's `MAIL_*` settings. The local log mailer records messages rather than sending them. The admin area is at `/admin`. No account is provided. On your own installation, sign up, open `php artisan tinker`, and run `App\\Models\\User::where('email', 'your-address@example.com')->update(['id_role' => 1]);` to grant that account the administrator role.
+
+A fresh database contains only roles, categories and rewards, plus migration bookkeeping. Accounts, lists, reviews and editorial selections start empty.
+
+For real email delivery, set `MAIL_MAILER=smtp` in your local `.env` and fill in `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` and an authorized `MAIL_FROM_ADDRESS` using your provider's settings. Use `MAIL_SCHEME=smtp` for port 587 or `smtps` if your provider specifies implicit TLS on port 465. Never commit credentials. Run `php artisan config:clear`, then `php artisan watchlist:test-smtp recipient@example.com` to test delivery without changing account settings.
+
+## Where to start reading
+
+- `routes/web.php` defines URLs and access boundaries.
+- `app/Http/Controllers/` validates input and prepares responses.
+- `app/Services/` holds shared logic, including TMDB requests.
+- `app/Models/` describes the local data; `database/` contains the schema and migrations.
+- `resources/` contains Blade views, CSS and browser scripts.
+
+Run `php artisan test` with the `pdo_sqlite` extension; it uses an in-memory database. For deployment, point the web root at `public/`, set `APP_DEBUG=false`, and use HTTPS. Never commit environment files, credentials, logs, uploads or database backups.
+
+## Licence and attribution
+
+The code is MIT-licensed. This product uses the TMDB API but is not endorsed or certified by TMDB. Availability data is supplied by JustWatch through TMDB. Third-party data and images are not covered by the project's code licence.
