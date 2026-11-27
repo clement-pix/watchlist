@@ -32,6 +32,15 @@ Le catalogue n'est pas recopié dans la base : les données sont consultées via
 
 ## Installation rapide
 
+Clonez le dépôt, puis placez-vous dans le dossier du projet :
+
+```bash
+git clone https://github.com/clement-pix/watchlist.git
+cd watchlist
+```
+
+Installez ensuite les dépendances et initialisez la configuration locale :
+
 ```bash
 composer install
 npm ci

@@ -8,7 +8,14 @@ WatchList is an open-source Laravel 12 application developed by Clément Musset 
 
 ## Local setup
 
-You need PHP 8.2+, Composer 2, Node.js 20+, and a MySQL or MariaDB server. Run these commands from the project root:
+You need PHP 8.2+, Composer 2, Node.js 20+, and a MySQL or MariaDB server. Clone the repository and enter the project directory:
+
+```sh
+git clone https://github.com/clement-pix/watchlist.git
+cd watchlist
+```
+
+Then install dependencies and initialize the local configuration:
 
 ```sh
 composer install
