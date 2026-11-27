@@ -2,9 +2,11 @@
 
 [Read this documentation in English](README.en.md)
 
-Une application open-source Laravel pour découvrir des films et des séries, créer une liste personnelle et publier des avis.
+Application web open source développée par Clément Musset dans le cadre du BTS SIO, option SLAM. WatchList combine un catalogue de films et séries, une liste privée et un espace communautaire administrable.
 
-Le catalogue n'est pas copié dans la base de données : il est consulté à la demande via l'API TMDB puis mis en cache pendant quelques minutes. Seuls les comptes, les listes, les avis et les titres réellement ajoutés par les utilisateurs sont conservés localement.
+Le catalogue n'est pas recopié dans la base : les données sont consultées via TMDB et mises en cache. La base conserve les interactions propres à WatchList et les références aux œuvres utilisées dans l'application.
+
+[Installation](#installation-rapide) · [Architecture](#architecture-du-catalogue) · [Base de données](#base-de-données) · [Tests](#tests) · [English](README.en.md)
 
 ## Fonctionnalités
 
@@ -22,7 +24,7 @@ Le catalogue n'est pas copié dans la base de données : il est consulté à la 
 
 ## Prérequis
 
-- PHP 8.2 ou supérieur ;
+- PHP 8.2 ou supérieur, avec `pdo_mysql` pour MariaDB/MySQL et `pdo_sqlite` pour les tests ;
 - Composer 2 ;
 - Node.js 20 ou supérieur ;
 - MariaDB 10.6+ ou MySQL 8 ;
@@ -38,6 +40,8 @@ php artisan key:generate
 ```
 
 Créez une base vide, renseignez les variables `DB_*` dans `.env`, puis importez la structure :
+
+Conservez `DB_TABLE_PREFIX=wl_` : les tables du schéma initial portent ce préfixe. L'import SQL installe la structure historique ; les migrations ajoutent les évolutions et le seeder remplit les référentiels, sans créer de compte.
 
 ```bash
 mysql -u root -p nom_de_la_base < database/structure_WL.sql
@@ -154,13 +158,35 @@ Configurez ensuite une tâche planifiée exécutant `php artisan schedule:run` t
 ## Architecture du catalogue
 
 ```text
-Navigateur → WatchList/Laravel → cache temporaire → API TMDB
-                    ↓
-         base locale (comptes, listes, avis,
-         titres choisis uniquement)
+Navigateur (Blade, CSS et JavaScript compilés par Vite)
+  → Routes et contrôleurs Laravel
+      ├── TmdbService → cache Laravel → API TMDB
+      └── Modèles Eloquent → MariaDB/MySQL
 ```
 
-Cette architecture évite de synchroniser des centaines de milliers de fiches, réduit l'espace disque et rend le projet facile à installer pour d'autres utilisateurs.
+Laravel 12 gère les routes, les sessions et les accès. Blade rend les pages côté serveur ; Vite compile les styles et le JavaScript, avec Tailwind CSS 4 parmi les dépendances front-end.
+
+`TmdbService` normalise les réponses en distinguant films et séries. La recherche est mise en cache 30 minutes, les fiches 6 heures et les genres 24 heures. Le jeton TMDB reste côté serveur. Les notes publiques et avis sont ceux des membres WatchList, pas les notes ou avis de TMDB.
+
+## Base de données
+
+La structure de départ est dans [`database/structure_WL.sql`](database/structure_WL.sql) ; les [migrations](database/migrations) documentent les évolutions. Dans le tableau, les noms logiques sont indiqués sans le préfixe `wl_`.
+
+| Relation | Cardinalité / rôle |
+| --- | --- |
+| Rôle → compte | **1:N**. Le rôle détermine l'accès aux fonctions membre ou administratives. |
+| Liste ↔ média | **N:N** via `Composer`. Le média porte la référence au titre externe lorsque celle-ci est disponible. |
+| Compte → avis ← média | **1:N** de chaque côté. L'avis associe un membre à un titre. |
+| Message → réponses | **1:N**. Une réponse peut référencer un message du Salon ; les réactions sont stockées séparément. |
+| Signalement et historique | Les signalements et les décisions de modération sont stockés dans des tables distinctes. |
+
+## Tests
+
+```bash
+php artisan test
+```
+
+PHPUnit utilise SQLite en mémoire, une session et un cache temporaires, et un transport mail en mémoire. Les tests couvrent notamment l'accès aux espaces privés, l'expiration et la non-réutilisation des codes de connexion, les doublons dans une liste et le traitement unique d'un signalement. Ils ne remplacent pas une vérification de MariaDB, de TMDB et du SMTP dans votre environnement de déploiement.
 
 ## Attribution
 

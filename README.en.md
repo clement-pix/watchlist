@@ -2,7 +2,9 @@
 
 [Documentation française](README.md)
 
-WatchList is a Laravel app for discovering movies and TV shows, saving a private watchlist and sharing reviews. It queries TMDB on demand rather than importing the entire catalogue.
+WatchList is an open-source Laravel 12 application developed by Clément Musset as a BTS SIO coursework project. It combines a movie and TV catalogue, private watchlists, community reviews and a moderation back office. It queries TMDB on demand rather than importing the entire catalogue.
+
+[Setup](#local-setup) · [Architecture](#architecture) · [Data model](#data-model) · [Tests](#tests) · [Français](README.md)
 
 ## Local setup
 
@@ -36,6 +38,26 @@ Email verification codes use Laravel's `MAIL_*` settings. The local log mailer r
 A fresh database contains only roles, categories and rewards, plus migration bookkeeping. Accounts, lists, reviews and editorial selections start empty.
 
 For real email delivery, set `MAIL_MAILER=smtp` in your local `.env` and fill in `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` and an authorized `MAIL_FROM_ADDRESS` using your provider's settings. Use `MAIL_SCHEME=smtp` for port 587 or `smtps` if your provider specifies implicit TLS on port 465. Never commit credentials. Run `php artisan config:clear`, then `php artisan watchlist:test-smtp recipient@example.com` to test delivery without changing account settings.
+
+## Architecture
+
+Laravel handles routes, sessions, access control and persistence. Blade renders the pages server-side; Vite builds the CSS and JavaScript. `TmdbService` normalizes movies and TV shows and caches catalogue pages for 30 minutes, details for 6 hours and genres for 24 hours. Public reviews and scores are WatchList member contributions, not TMDB ratings.
+
+## Data model
+
+Import [the initial SQL schema](database/structure_WL.sql), then run the [Laravel migrations](database/migrations). Keep `DB_TABLE_PREFIX=wl_` to match the imported tables. Seeding creates reference data, not accounts.
+
+| Relationship | Design |
+| --- | --- |
+| Roles → accounts | One-to-many; roles restrict access to administrative features. |
+| Watchlists ↔ titles | Many-to-many through the `Composer` table. |
+| Accounts → reviews ← titles | A review belongs to one account and one title. |
+| Chat messages → replies | A reply may refer to a parent message. Reactions are stored separately. |
+| Reports and moderation | Reports and moderation decisions are stored separately. |
+
+## Tests
+
+Run `php artisan test` with the PHP `pdo_sqlite` extension installed. The suite uses an in-memory SQLite database and mail transport. It checks private access, two-factor code expiry and reuse, duplicate watchlist entries, and report resolution. Validate MariaDB, TMDB and SMTP separately in your own deployment.
 
 ## Where to start reading
 
