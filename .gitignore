@@ -1,0 +1,29 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/certs/
+/backups/
+/vendor
+.env
+.env.*
+!.env.example
+.phpactor.json
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/auth.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+# FR : les fichiers importés en local ne doivent pas être publiés.
+# EN: Locally uploaded files must not be published.
+/storage/app/public/
+
